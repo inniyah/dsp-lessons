@@ -1,9 +1,13 @@
+#include "OGLGraph.hpp"
+#include "delegate.h"
+
 #include <cstdint>
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
+#include <cassert>
 #include <cmath>
 #include <unistd.h>
-#include "delegate.h"
 
 typedef Delegate<double> GeneratorDelegate;
 
@@ -75,17 +79,36 @@ private:
 	double m_Output;
 };
 
-int main(int argc, const char * argv[]) {
-	unsigned long int Tick = 0;
-	PulseGenerator  pgen(8);
-	Filter          pflt(GeneratorDelegate::fromObjectMethod<PulseGenerator, &PulseGenerator::get>(&pgen));
-	RampGenerator   rgen(8);
-	Filter          rflt(GeneratorDelegate::fromObjectMethod<RampGenerator, &RampGenerator::get>(&rgen));
-	while (true) {
-		printf("A\t%lu\t%lf\n", Tick, pflt.get());
-		printf("B\t%lu\t%lf\n", Tick, rflt.get());
-		++Tick;
-		usleep(100 * 1000lu);
+// Main Application
+
+class App : public IApp<2> {
+public:
+	App() :
+		pgen(16),
+		pflt(GeneratorDelegate::fromObjectMethod<PulseGenerator, &PulseGenerator::get>(&pgen)),
+		rgen(16),
+		rflt(GeneratorDelegate::fromObjectMethod<RampGenerator, &RampGenerator::get>(&rgen))
+	{
 	}
-	return EXIT_SUCCESS;
+
+	virtual void init(void);
+	virtual void update(void);
+
+private:
+	PulseGenerator pgen;
+	Filter         pflt;
+	RampGenerator  rgen;
+	Filter         rflt;
+};
+
+void App::init(void){
 }
+
+void App::update(void) {
+	Values[0] = pflt.get();
+	Values[1] = rflt.get();
+}
+
+// Main application object
+
+static App app;

@@ -1,6 +1,10 @@
+#include "OGLGraph.hpp"
+
 #include <cstdint>
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
+#include <cassert>
 #include <cmath>
 #include <unistd.h>
 
@@ -54,13 +58,28 @@ private:
 	double m_Output;
 };
 
-int main(int argc, const char * argv[]) {
-	unsigned long int Tick = 0;
-	PulseGenerator pgen(8);
-	Filter filter(pgen);
-	while (true) {
-		printf("A\t%lu\t%lf\n", Tick++, filter.get());
-		usleep(100 * 1000lu);
+// Main Application
+
+class App : public IApp<1> {
+public:
+	App() : pgen(16), filter(pgen) {
 	}
-	return EXIT_SUCCESS;
+
+	virtual void init(void);
+	virtual void update(void);
+
+private:
+	PulseGenerator pgen;
+	Filter filter;
+};
+
+void App::init(void){
 }
+
+void App::update(void) {
+	Values[0] = filter.get();
+}
+
+// Main application object
+
+static App app;
