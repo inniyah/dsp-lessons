@@ -53,19 +53,19 @@ void loop() {
 // shift sample by 3 bits, and select higher byte  
   hb=highByte(sensorValue<<3); 
 // set 3 most significant bits and send out
-  Serial.print(hb|224,BYTE); 
+  Serial.write(hb|224); 
 // select lower byte and clear 3 most significant bits
   lb=(lowByte(sensorValue))&31;
 // set bits 5 and 6 and send out
-  Serial.print(lb|96,BYTE);
+  Serial.write(lb|96);
 // read A1
   sensorValue = analogRead(A1);            
 // shift sample by 3 bits, and select higher byte 
   hb=highByte(sensorValue<<3); 
 // set bits 5 and 6 and send out
-  Serial.print(hb|96,BYTE); 
+  Serial.write(hb|96); 
 // select lower byte and clear 3 most significant bits
   lb=(lowByte(sensorValue))&31;
 // set bits 5 and 6 and send out
-  Serial.print(lb|96,BYTE);
+  Serial.write(lb|96);
 }
