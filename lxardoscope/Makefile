@@ -23,18 +23,17 @@
 # *
 # */
 
-
-INSTALL_BASE_PATH=/usr/local
-
-# Library paths
-LIB_X11_PATH=/usr/X11R6/lib
+DESTDIR=
+BINDIR=/usr/bin
 
 # Compilation options
 CC=gcc
-CC_OPTIONS= -O2 -Wall -L$(LIB_X11_PATH) -D_REENTRANT
+CFLAGS=-g -O2 -Wall -Wno-unused-but-set-variable
+CC_OPTIONS=-D_REENTRANT
 
 # Linking libraries
-LIBS=./xforms-1.0.93sp1_ext/libforms.a -lX11 -lm -lpthread
+LIBS=-lforms -lX11 -lm -lpthread
+LDFLAGS=-Wl,-z,defs  -Wl,-as-needed -Wl,--no-undefined
 
 #*************************************************************************
 #**************** Nothing to change after this line **********************
@@ -48,50 +47,49 @@ FILE_EXEC=lxardoscope
 #*************************************************************************
 
 all: $(FILES_O)
-	$(CC) $(CC_OPTIONS) $(FILES_O) $(LIBS) -o $(FILE_EXEC)
+	$(CC) $(LDFLAGS) $(FILES_O) $(LIBS) -o $(FILE_EXEC)
 
 
 #*************************************************************************
 
 $(FILE_OUT).o: $(FILE_OUT).c
-	$(CC) $(CC_OPTIONS) -c $(FILE_OUT).c -o $(FILE_OUT).o
+	$(CC) $(CFLAGS) $(CC_OPTIONS) -c $(FILE_OUT).c -o $(FILE_OUT).o
 
 $(FILE_OUT)_cb.o: $(FILE_OUT)_cb.c
-	$(CC) $(CC_OPTIONS) -c $(FILE_OUT)_cb.c -o $(FILE_OUT)_cb.o
+	$(CC) $(CFLAGS) $(CC_OPTIONS) -c $(FILE_OUT)_cb.c -o $(FILE_OUT)_cb.o
 
 $(FILE_OUT)_gui.o: $(FILE_OUT)_gui.c
-	$(CC) $(CC_OPTIONS) -c $(FILE_OUT)_gui.c -o $(FILE_OUT)_gui.o
+	$(CC) $(CFLAGS) $(CC_OPTIONS) -c $(FILE_OUT)_gui.c -o $(FILE_OUT)_gui.o
 
 $(FILE_OUT)_ard.o: $(FILE_OUT)_ard.c
-	$(CC) $(CC_OPTIONS) -c $(FILE_OUT)_ard.c -o $(FILE_OUT)_ard.o
+	$(CC) $(CFLAGS) $(CC_OPTIONS) -c $(FILE_OUT)_ard.c -o $(FILE_OUT)_ard.o
 
 $(FILE_OUT)_plt.o: $(FILE_OUT)_plt.c
-	$(CC) $(CC_OPTIONS) -c $(FILE_OUT)_plt.c -o $(FILE_OUT)_plt.o
+	$(CC) $(CFLAGS) $(CC_OPTIONS) -c $(FILE_OUT)_plt.c -o $(FILE_OUT)_plt.o
 
 $(FILE_OUT)_file.o: $(FILE_OUT)_file.c
-	$(CC) $(CC_OPTIONS) -c $(FILE_OUT)_file.c -o $(FILE_OUT)_file.o
+	$(CC) $(CFLAGS) $(CC_OPTIONS) -c $(FILE_OUT)_file.c -o $(FILE_OUT)_file.o
 
 iscaler.o: iscaler.c
-	$(CC) $(CC_OPTIONS) -c iscaler.c -o iscaler.o
+	$(CC) $(CFLAGS) $(CC_OPTIONS) -c iscaler.c -o iscaler.o
 
 ipushwheel.o: ipushwheel.c
-	$(CC) $(CC_OPTIONS) -c ipushwheel.c -o ipushwheel.o
+	$(CC) $(CFLAGS) $(CC_OPTIONS) -c ipushwheel.c -o ipushwheel.o
 
 #*************************************************************************
 
 install:
-	echo "May be you must be root to install the software !"
-	cp -f lxardoscope $(INSTALL_BASE_PATH)/bin
+	mkdir -p $(DESTDIR)/$(BINDIR)
+	cp -fv lxardoscope $(DESTDIR)/$(BINDIR)
 
 uninstall:
-	echo "May be you must be root to remove the software !"
-	rm -f $(INSTALL_BASE_PATH)/bin/lxardoscope 
+	rm -fv $(DESTDIR)/$(BINDIR)/lxardoscope 
 
 clean:
-	rm -f $(FILES_O)
+	rm -fv $(FILES_O)
 
 mrproper: clean
-	rm -f $(FILE_EXEC)
+	rm -fv $(FILE_EXEC)
 
 
 #*************************************************************************
