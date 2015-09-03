@@ -23,7 +23,7 @@
  *
  */
 
-#include "xforms-1.0.93sp1_ext/forms.h"
+#include <forms.h>
 #include "lxforms.h"
 #include "lxa.h"
 #include <unistd.h>

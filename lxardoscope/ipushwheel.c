@@ -25,14 +25,14 @@
  *			4: 4 buttons, FL_FLOAT_INPUT
  */
 
-#include "xforms-1.0.93sp1_ext/forms.h"
-#include "xforms-1.0.93sp1_ext/config.h"
-#include "xforms-1.0.93sp1_ext/flinternal.h"
-#include "xforms-1.0.93sp1_ext/ipushwheel.h"
+#include <forms.h>
+#include "ipushwheel.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <float.h>
+
+extern double fli_clamp( double, double, double );
 
 static void
 get_geom( FL_OBJECT * ob )

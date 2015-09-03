@@ -11,10 +11,8 @@
 
 
 
-#include "xforms-1.0.93sp1_ext/forms.h"
-#include "xforms-1.0.93sp1_ext/config.h"
-#include "xforms-1.0.93sp1_ext/flinternal.h"
-#include "xforms-1.0.93sp1_ext/iscaler.h"
+#include <forms.h>
+#include "iscaler.h"
 
 #include <string.h>
 #include <stdlib.h>

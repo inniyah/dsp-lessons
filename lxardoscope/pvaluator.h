@@ -86,9 +86,9 @@ typedef struct {
 	FL_OBJECT	  *button3;
 	FL_OBJECT	  *button4;
 	FL_OBJECT	  *button5;
-	FL_OBJECT	  *button6;	
+	FL_OBJECT	  *button6;
 	FL_OBJECT	  *button7;
-	FL_OBJECT	  *button8;	
+	FL_OBJECT	  *button8;
 	FL_OBJECT	  *input;
 	FL_OBJECT	  *iscaler;
 	FL_OBJECT 	  *ipushwheel;
@@ -109,3 +109,4 @@ enum
  * indent-tabs-mode: nil
  * End:
  */
+

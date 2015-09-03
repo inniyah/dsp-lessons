@@ -23,9 +23,9 @@
  *
  */
 
-#include "xforms-1.0.93sp1_ext/forms.h"
-#include "xforms-1.0.93sp1_ext/ipushwheel.h"
-#include "xforms-1.0.93sp1_ext/iscaler.h"
+#include <forms.h>
+#include "ipushwheel.h"
+#include "iscaler.h"
 #include "lxforms.h"
 #include "lxa.h"
 #include <fcntl.h>

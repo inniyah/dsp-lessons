@@ -5,7 +5,7 @@
  * LXARDOSCOPE is an Arduino based oscilloscope for Linux, using the Xforms library.
  *
  * Copyright (C) 2011 Oskar Leuthold
- * 
+ *
  * LXARDOSCOPE is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -23,7 +23,7 @@
  *
  */
 
-// this file derived from xforms-1.0.93sp1 counter.h 
+// this file derived from xforms-1.0.93sp1 counter.h
 
 #ifndef FL_IPUSHWHEEL_H
 #define FL_IPUSHWHEEL_H
@@ -110,3 +110,4 @@ FL_EXPORT void fl_set_ipushwheel_precision( FL_OBJECT * ob,
 FL_EXPORT void fl_set_ipushwheel_color(FL_OBJECT * ob,FL_COLOR col1,FL_COLOR col2);
 
 #endif /* ! defined FL_IPUSHWHEEL_H */
+
