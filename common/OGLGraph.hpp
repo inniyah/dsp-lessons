@@ -103,8 +103,12 @@ void OGLGraph<CHANNELS>::draw() {
 	glEnable(GL_LINE_STIPPLE);
 	glLineStipple (3, 0xAAAA);
 	glBegin(GL_LINES);
-	glColor3ub(128, 128, 128);
 	for (double i = ceil(data_min); i <= floor(data_max); i += 1.0) {
+		if (-0.1 < i && i < 0.1) {
+			glColor3ub(192, 192, 192);
+		} else {
+			glColor3ub(128, 128, 128);
+		}
 		float y = margin_h + (screen_h-2*margin_h) * (i-data_min) / (data_max-data_min);
 		glVertex3f( margin_w,          y, 0 );
 		glVertex3f( screen_w-margin_w, y, 0 );
