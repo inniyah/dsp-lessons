@@ -20,6 +20,7 @@
 #include <ctime>
 #include <cassert>
 #include <cstring>
+#include <cmath>
 #include <list>
 
 template<unsigned int CHANNELS>
@@ -57,6 +58,25 @@ public:
 			StippleFactor = stf;
 			StipplePattern = stp;
 		}
+		void setStipple(int stf = 0, unsigned short stp = 0xFFFF) {
+			StippleFactor = stf;
+			StipplePattern = stp;
+		}
+		LineConfigS & operator=(const LineConfigS & lc) {
+			Red = lc.Red;
+			Green = lc.Green;
+			Blue = lc.Blue;
+			StippleFactor = lc.StippleFactor;
+			StipplePattern = lc.StipplePattern;
+			return *this;
+		}
+		LineConfigS operator*(float factor) const {
+			LineConfigS lc(*this);
+			lc.Red = static_cast<unsigned char>(::fmax(0.0, ::fmin(255.0, factor * static_cast<float>(Red))));
+			lc.Green = static_cast<unsigned char>(::fmax(0.0, ::fmin(255.0, factor * static_cast<float>(Green))));
+			lc.Blue = static_cast<unsigned char>(::fmax(0.0, ::fmin(255.0, factor * static_cast<float>(Blue))));
+			return lc;
+		}
 		unsigned char Red, Green, Blue;
 		int StippleFactor;
 		unsigned short StipplePattern;
@@ -84,6 +104,8 @@ struct IBaseApp {
 	virtual void setup(void) = 0;
 	virtual void init(void) = 0;
 	virtual void update(void) = 0;
+
+	virtual void refresh(void) = 0;
 	virtual void draw(void) = 0;
 
 	static IBaseApp * MainApp;
@@ -97,10 +119,14 @@ struct IApp : public IBaseApp {
 	virtual void setup(void) {
 		memset( Values, 0, sizeof(Values) );
 		Graph.setup(200);
+		init();
 	}
 
-	virtual void draw(void) {
+	virtual void refresh(void) final {
 		Graph.update( Values );
+	}
+
+	virtual void draw(void) final {
 		Graph.draw();
 	}
 

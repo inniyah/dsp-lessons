@@ -9,6 +9,8 @@
 
 IBaseApp * IBaseApp::MainApp = NULL;
 
+static bool AppPause = false;
+
 void init(void) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.f); // Black Background
 	//glClearDepth(1.0f); // Depth Buffer Setup
@@ -25,7 +27,11 @@ void display(void) {
 
 	//float time = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 
-	IBaseApp::MainApp->update();
+	if (!AppPause) {
+		IBaseApp::MainApp->update();
+		IBaseApp::MainApp->refresh();
+	}
+
 	IBaseApp::MainApp->draw();
 
 	glutSwapBuffers ( );
@@ -41,8 +47,11 @@ void reshape(int w, int h) {
 
 void keyboard(unsigned char key, int x, int y) {
 	switch (key)  {
-	case 27:
+	case 27: /* Escape */
 		exit(EXIT_SUCCESS);
+		break;
+	case 32: /* Space */
+		AppPause = !AppPause;
 		break;
 	default:
 		break;

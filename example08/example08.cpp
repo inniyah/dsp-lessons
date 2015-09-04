@@ -118,20 +118,20 @@ private:
 class App : public IApp<2> {
 public:
 	App() : pgen(16), pflt(pgen), rgen(16), rflt(rgen) {
-		pflt.setListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pgen>(this) );
-		rflt.setListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rgen>(this) );
+		pflt.setListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pflt>(this) );
+		rflt.setListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rflt>(this) );
 	}
 
 	virtual ~App() {
-		pflt.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pgen>(this) );
-		rflt.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rgen>(this) );
+		pflt.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pflt>(this) );
+		rflt.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rflt>(this) );
 	}
 
-	void receive_pgen(double input) {
+	void receive_pflt(double input) {
 		Values[0] = input;
 	}
 
-	void receive_rgen(double input) {
+	void receive_rflt(double input) {
 		Values[1] = input;
 	}
 

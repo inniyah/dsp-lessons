@@ -9,34 +9,35 @@
 #include <cassert>
 #include <cmath>
 #include <unistd.h>
+#include <list>
 
 class AbstractDataSource {
 public:
-	typedef LinkedType<Delegate<void, double> > ListenerDelegate;
+	typedef Delegate<void, double> ListenerDelegate;
 
-	AbstractDataSource() :
-		m_ListenerDelegate(ListenerDelegate::fromObjectMethod<AbstractDataSource, &AbstractDataSource::emptyListenerDelegate>(this))
-	{
+	AbstractDataSource() {
 	}
 
-	void emptyListenerDelegate(double) {
+	~AbstractDataSource() {
+		m_DelegateList.empty();
 	}
 
-	void setListener(ListenerDelegate delegate) {
-		m_ListenerDelegate = delegate;
+	inline void insertListener(const ListenerDelegate & delegate) {
+		m_DelegateList.push_back( delegate );
 	}
 
-	void removeListener(ListenerDelegate delegate) {
-		assert(m_ListenerDelegate == delegate);
-		m_ListenerDelegate = ListenerDelegate::fromObjectMethod<AbstractDataSource, &AbstractDataSource::emptyListenerDelegate>(this);
+	inline void removeListener(const ListenerDelegate & delegate) {
+		m_DelegateList.remove( delegate );
 	}
 
 	void sendOutput(double value) {
-		m_ListenerDelegate(value);
+		for(std::list<ListenerDelegate>::iterator iter = m_DelegateList.begin();  iter != m_DelegateList.end(); ++iter) {
+		    (*iter).operator()(value);
+		}
 	}
 
 private:
-	ListenerDelegate m_ListenerDelegate;
+	std::list<ListenerDelegate> m_DelegateList;
 };
 
 class PulseGenerator : public AbstractDataSource {
@@ -96,7 +97,7 @@ public:
 		m_Alpha(alpha),
 		m_Output(0.0)
 	{
-		m_Generator.setListener( ListenerDelegate::fromObjectMethod<Filter, &Filter::receive>(this) );
+		m_Generator.insertListener( ListenerDelegate::fromObjectMethod<Filter, &Filter::receive>(this) );
 	}
 
 	virtual ~Filter() {
@@ -116,16 +117,20 @@ private:
 
 // Main Application
 
-class App : public IApp<2> {
+class App : public IApp<4> {
 public:
 	App() : pgen(16), pflt(pgen), rgen(16), rflt(rgen) {
-		pflt.setListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pgen>(this) );
-		rflt.setListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rgen>(this) );
+		pgen.insertListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pgen>(this) );
+		rgen.insertListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rgen>(this) );
+		pflt.insertListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pflt>(this) );
+		rflt.insertListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rflt>(this) );
 	}
 
 	virtual ~App() {
-		pflt.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pgen>(this) );
-		rflt.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rgen>(this) );
+		pgen.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pgen>(this) );
+		rgen.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rgen>(this) );
+		pflt.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pflt>(this) );
+		rflt.removeListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_rflt>(this) );
 	}
 
 	void receive_pgen(double input) {
@@ -134,6 +139,14 @@ public:
 
 	void receive_rgen(double input) {
 		Values[1] = input;
+	}
+
+	void receive_pflt(double input) {
+		Values[2] = input;
+	}
+
+	void receive_rflt(double input) {
+		Values[3] = input;
 	}
 
 	virtual void init(void);
@@ -147,6 +160,10 @@ private:
 };
 
 void App::init(void) {
+	Graph.LineConfig[0] = Graph.LineConfig[2] * 0.7;
+	Graph.LineConfig[0].setStipple(8, 0xEEEE);
+	Graph.LineConfig[1] = Graph.LineConfig[3] * 0.7;
+	Graph.LineConfig[1].setStipple(8, 0xEEEE);
 }
 
 void App::update(void) {
