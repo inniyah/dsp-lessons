@@ -103,7 +103,7 @@ void OGLGraph<CHANNELS>::draw() {
 	glEnable(GL_LINE_STIPPLE);
 	glLineStipple (3, 0xAAAA);
 	glBegin(GL_LINES);
-	double linc = pow( 10, floor( log10( (data_max - data_min)*0.7 ) ) );
+	double linc = pow(10, floor(log10( (data_max - data_min)*0.8 )));
 	for (double i = ceil(data_min/linc)*linc; i <= floor(data_max/linc)*linc; i += linc) {
 		if (((-0.1*linc) < i) && (i < (0.1 * linc))) {
 			glColor3ub(192, 192, 192);

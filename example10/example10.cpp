@@ -1,6 +1,6 @@
 #include "OGLGraph.hpp"
 #include "delegate.h"
-#include "linked_list.h"
+#include "flags.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -45,6 +45,10 @@ public:
 		}
 	}
 
+	void reset() {
+		m_Done = false;
+	}
+
 private:
 	std::list<ListenerDelegate> m_DelegateList;
 	bool m_Done;
@@ -52,68 +56,29 @@ private:
 
 class PulseGenerator : public AbstractDataSource {
 public:
-	PulseGenerator(int period, double amplitude = 1.0) :
-		m_Counter(0),
-		m_Period(period),
-		m_Amplitude(amplitude)
-	{
+	PulseGenerator() : m_Counter(0), m_Period(0), m_Amplitude(0.0) {
 	}
 
-	void setup() {
+	void setup(unsigned int period, double amplitude = 1.0, unsigned int initial_counter = 0) {
+		m_Period = period;
+		m_Amplitude = amplitude;
+		m_Counter = (initial_counter % m_Period);
 	}
 
 	void go() {
-		sendOutput( ((m_Counter++) % m_Period) < (m_Period/2) ? m_Amplitude : 0.0 );
+		if (0 != m_Period) {
+			sendOutput( ((m_Counter++) % m_Period) < (m_Period/2) ? m_Amplitude : 0.0 );
+		}
 	}
 
 private:
-	int m_Counter;
-	int m_Period;
+	unsigned int m_Counter;
+	unsigned int m_Period;
 	double m_Amplitude;
 };
 
-template<typename N, N MASK = ~0>
-class Flags {
-public:
-	typedef N Type;
-	static const unsigned int Bits = sizeof(N)*8;
-	static const N Mask            = static_cast<N>(MASK);
-	static const N None            = static_cast<N>(0) & Mask;
-	static const N All             = static_cast<N>(~0) & Mask;
 
-	Flags(N ini = None) : m_Data(ini) {
-	}
-
-	inline bool get(unsigned int bit) {
-		return (0 != (m_Data & static_cast<N>(1 << bit)));
-	}
-
-	inline void set(unsigned int bit) {
-		m_Data |= static_cast<N>(1 << bit);
-	}
-
-	inline void reset(unsigned int bit) {
-		m_Data &= static_cast<N>(~(1 << bit));
-	}
-
-	inline void toggle(unsigned int bit) {
-		m_Data ^= static_cast<N>(1 << bit);
-	}
-
-	inline bool isEmpty() {
-		return (None == m_Data);
-	}
-
-	inline bool isFull() {
-		return (All == m_Data);
-	}
-
-private:
-	N m_Data;
-};
-
-
-class MyProcess : public AbstractDataSource {
+class Filter : public AbstractDataSource {
 	/*
 	 * first order IIR filters to approximate a K sample moving average.
 	 * This function implements the equation:
@@ -127,23 +92,42 @@ class MyProcess : public AbstractDataSource {
 	 * See: http://dsp.stackexchange.com/questions/378/what-is-the-best-first-order-iir-approximation-to-a-moving-average-filter
 	 */
 public:
-	MyProcess(AbstractDataSource & source) : m_Source(source) {
+	Filter() : m_Source(NULL), m_Alpha(1.0), m_Ampli(1.0), m_Output(0.0) {
 	}
 
-	void setup() {
-		m_Source.insertListener( ListenerDelegate::fromObjectMethod<MyProcess, &MyProcess::receive>(this) );
+	void setup(AbstractDataSource & source, double alpha = 0.5, double amplification = 1.0) {
+		AbstractDataSource::reset();
+
+		if (NULL != m_Source) {
+			m_Source->removeListener( ListenerDelegate::fromObjectMethod<Filter, &Filter::receive>(this) );
+		}
+
+		m_Source = &source;
+		m_Alpha = alpha;
+		m_Ampli = amplification;
+		m_Output = 0.0;
+
+		if (NULL != m_Source) {
+			m_Source->insertListener( ListenerDelegate::fromObjectMethod<Filter, &Filter::receive>(this) );
+		}
 	}
 
-	virtual ~MyProcess() {
-		m_Source.removeListener( ListenerDelegate::fromObjectMethod<MyProcess, &MyProcess::receive>(this) );
+	virtual ~Filter() {
+		if (NULL != m_Source) {
+			m_Source->removeListener( ListenerDelegate::fromObjectMethod<Filter, &Filter::receive>(this) );
+		}
 	}
 
 	void receive(double input) {
-		sendOutput( 2.0 * input );
+		m_Output = m_Alpha * input + (1.0 - m_Alpha) * m_Output;
+		sendOutput( m_Ampli * m_Output );
 	}
 
 private:
-	AbstractDataSource & m_Source;
+	AbstractDataSource * m_Source;
+	double m_Alpha;
+	double m_Ampli;
+	double m_Output;
 };
 
 
@@ -152,45 +136,57 @@ typedef double (*binary_double_op)(double, double); // Signature for all valid t
 template<binary_double_op OP>
 class Composition : public AbstractDataSource {
 public:
-	Composition(AbstractDataSource & source1, AbstractDataSource & source2) :
-		m_Source1(source1),
-		m_Source2(source2),
-		m_InputsReceived(m_InputsReceived.All),
-		m_Input1(std::nan("")),
-		m_Input2(std::nan(""))
-	{
+	Composition() : m_Source1(NULL), m_Source2(NULL), m_InputsReceived(m_InputsReceived.None), m_Input1(std::nan("")), m_Input2(std::nan("")) {
 	}
 
-	void setup() {
-		m_Source1.insertListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<Composition, &Composition::receive_gen1>(this) );
-		m_Source2.insertListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<Composition, &Composition::receive_gen2>(this) );
+	void setup(AbstractDataSource & source1, AbstractDataSource & source2) {
+		AbstractDataSource::reset();
+
+		if (NULL != m_Source1) {
+			m_Source1->removeListener( ListenerDelegate::fromObjectMethod<Composition, &Composition::receive_gen1>(this) );
+		}
+		if (NULL != m_Source2) {
+			m_Source2->removeListener( ListenerDelegate::fromObjectMethod<Composition, &Composition::receive_gen2>(this) );
+		}
+
+		m_Source1 = &source1;
+		m_Source2 = &source2;
+
+		if (NULL != m_Source1) {
+			m_Source1->insertListener( ListenerDelegate::fromObjectMethod<Composition, &Composition::receive_gen1>(this) );
+		}
+		if (NULL != m_Source2) {
+			m_Source2->insertListener( ListenerDelegate::fromObjectMethod<Composition, &Composition::receive_gen2>(this) );
+		}
+
+		m_InputsReceived.setAll();
+		m_Input1 = 0.0;
+		m_Input2 = 0.0;
 	}
 
 	void receive_gen1(double input) {
 		m_Input1 = input;
 		m_InputsReceived.set(0);
-		printf("A\n");
 		sendCurrentOutputIfReady();
 	}
 
 	void receive_gen2(double input) {
 		m_Input2 = input;
 		m_InputsReceived.set(1);
-		printf("B\n");
 		sendCurrentOutputIfReady();
 	}
 
 private:
 	void sendCurrentOutputIfReady() {
 		if (m_InputsReceived.isFull()) {
+			m_InputsReceived.resetAll();
 			double output = OP(m_Input1, m_Input2);
 			sendOutput( output );
-			printf("****\n");
 		}
 	}
 
-	AbstractDataSource & m_Source1;
-	AbstractDataSource & m_Source2;
+	AbstractDataSource * m_Source1;
+	AbstractDataSource * m_Source2;
 	Flags<unsigned char, 0x03> m_InputsReceived;
 	double m_Input1;
 	double m_Input2;
@@ -202,10 +198,11 @@ double sub(double a, double b) { return a - b; }
 
 class App : public IApp<3> {
 public:
-	App() : pgen(100), csub(pgen, proc), proc(csub) {
-		pgen.setup();
-		csub.setup();
-		proc.setup();
+	App() {
+		pgen.setup(100);
+		csub.setup(pgen, proc);
+		proc.setup(csub, 1.0, 0.6);
+
 		pgen.insertListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_pgen>(this) );
 		csub.insertListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_csub>(this) );
 		proc.insertListener( AbstractDataSource::ListenerDelegate::fromObjectMethod<App, &App::receive_proc>(this) );
@@ -232,6 +229,7 @@ public:
 	void tick() {
 		pgen.tick();
 		csub.tick();
+		proc.tick();
 	}
 
 	virtual void init(void);
@@ -240,7 +238,7 @@ public:
 private:
 	PulseGenerator pgen;
 	Composition<sub> csub;
-	MyProcess proc;
+	Filter proc;
 };
 
 void App::init(void) {
