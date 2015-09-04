@@ -107,13 +107,12 @@ private:
 };
 
 double add(double a, double b) { return a + b; }
-double mul(double a, double b) { return a * b; }
 
 // Main Application
 
-class App : public IApp<2> {
+class App : public IApp<1> {
 public:
-	App() : pgen(32), pflt(pgen), rgen(32), rflt(rgen), cadd(pflt,rflt), cmul(pflt,rflt) {
+	App() : pgen(30), pflt(pgen), rgen(32), rflt(rgen), cadd(pflt,rflt) {
 	}
 
 	virtual void init(void);
@@ -125,7 +124,6 @@ private:
 	RampGenerator    rgen;
 	Filter           rflt;
 	Composition<add> cadd;
-	Composition<mul> cmul;
 };
 
 void App::init(void){
@@ -133,7 +131,6 @@ void App::init(void){
 
 void App::update(void) {
 	cadd >> Values[0];
-	cmul >> Values[1];
 }
 
 // Main application object
