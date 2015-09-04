@@ -95,12 +95,12 @@ struct IApp : public IBaseApp {
 	virtual void update(void) = 0;
 
 	virtual void setup(void) {
+		memset( Values, 0, sizeof(Values) );
 		Graph.setup(200);
 	}
 
 	virtual void draw(void) {
 		Graph.update( Values );
-		memset( Values, 0, sizeof(Values) );
 		Graph.draw();
 	}
 

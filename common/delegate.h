@@ -22,15 +22,26 @@ class Delegate {
 public:
 
 	Delegate(void * callee, Type function) : fpCallee(callee) , fpCallbackFunction(function) { }
+	Delegate(const Delegate & d) : fpCallee(d.fpCallee) , fpCallbackFunction(d.fpCallbackFunction) { }
+
+	return_type operator()(params... xs) const {
+		return (*fpCallbackFunction)(fpCallee, xs...);
+	}
+
+	Delegate & operator=(const Delegate & d) {
+		fpCallee = d.fpCallee;
+		fpCallbackFunction = d.fpCallbackFunction;
+		return *this;
+	}
+
+	bool operator==(const Delegate & d) const {
+		return ((fpCallee == d.fpCallee) && (fpCallbackFunction == d.fpCallbackFunction));
+	}
 
 	template <class T, return_type (T::*TMethod)(params...)>
 	static Delegate fromObjectMethod(T * callee) {
 		Delegate d(callee, &methodCaller<T, TMethod>);
 		return d;
-	}
-
-	return_type operator()(params... xs) const {
-		return (*fpCallbackFunction)(fpCallee, xs...);
 	}
 
 private:
