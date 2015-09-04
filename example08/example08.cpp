@@ -34,8 +34,6 @@ public:
 		m_ListenerDelegate(value);
 	}
 
-	virtual void go() = 0;
-
 private:
 	ListenerDelegate m_ListenerDelegate;
 };
@@ -49,7 +47,7 @@ public:
 	{
 	}
 
-	virtual void go() {
+	void go() {
 		sendOutput( ((m_Counter++) % m_Period) < (m_Period/2) ? m_Amplitude : 0.0 );
 	}
 
@@ -68,7 +66,7 @@ public:
 	{
 	}
 
-	virtual void go() {
+	void go() {
 		sendOutput( ((m_Counter++) % m_Period) * m_Amplitude / (m_Period-1) );
 	}
 
@@ -107,10 +105,6 @@ public:
 	void receive(double input) {
 		m_Output = m_Alpha * input + (1.0 - m_Alpha) * m_Output;
 		sendOutput( m_Output );
-	}
-
-	virtual void go() {
-		m_Generator.go();
 	}
 
 private:
@@ -155,8 +149,8 @@ void App::init(void){
 }
 
 void App::update(void) {
-	pflt.go();
-	rflt.go();
+	pgen.go();
+	rgen.go();
 }
 
 // Main application object
