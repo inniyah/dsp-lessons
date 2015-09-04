@@ -5,8 +5,8 @@ all: $(PROGRAM)
 OBJS = $(PROGRAM).o main.o
 
 PKG_CONFIG=gl glu
-PKG_CONFIG_CFLAGS=`pkg-config --cflags $(PKG_CONFIG) 2>/dev/null` `fltk-config --cflags`
-PKG_CONFIG_LIBS=`pkg-config --libs $(PKG_CONFIG) 2>/dev/null` `fltk-config --ldflags --libs`
+PKG_CONFIG_CFLAGS=`pkg-config --cflags $(PKG_CONFIG) 2>/dev/null`
+PKG_CONFIG_LIBS=`pkg-config --libs $(PKG_CONFIG) 2>/dev/null`
 
 CFLAGS= -O2 -g -Wall -std=c++11
 DEFS= 
