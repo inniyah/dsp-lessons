@@ -103,8 +103,9 @@ void OGLGraph<CHANNELS>::draw() {
 	glEnable(GL_LINE_STIPPLE);
 	glLineStipple (3, 0xAAAA);
 	glBegin(GL_LINES);
-	for (double i = ceil(data_min); i <= floor(data_max); i += 1.0) {
-		if (-0.1 < i && i < 0.1) {
+	double linc = pow( 10, floor( log10( (data_max - data_min)*0.7 ) ) );
+	for (double i = ceil(data_min/linc)*linc; i <= floor(data_max/linc)*linc; i += linc) {
+		if (((-0.1*linc) < i) && (i < (0.1 * linc))) {
 			glColor3ub(192, 192, 192);
 		} else {
 			glColor3ub(128, 128, 128);
@@ -140,11 +141,10 @@ void OGLGraph<CHANNELS>::draw() {
 		glColor3ub(LineConfig[channel].Red, LineConfig[channel].Green, LineConfig[channel].Blue);
 		cnt = 0;
 		for (std::list<float>::const_iterator iter = _data[channel].begin(); iter != _data[channel].end(); iter++ ) {
-			glVertex3f(
-				margin_w + (screen_w-2*margin_w) * cnt / _cacheSize,
-				margin_h + (screen_h-2*margin_h) * ((*iter)-data_min) / (data_max-data_min),
-				0
-			);
+			double x = margin_w + (screen_w-2*margin_w) * cnt / _cacheSize;
+			double y = margin_h + (screen_h-2*margin_h) * ((*iter)-data_min) / (data_max-data_min);
+			y = fmax(0.0, fmin(screen_h, y));
+			glVertex3f(x, y, 0);
 			cnt++;
 		}
 		glEnd();
