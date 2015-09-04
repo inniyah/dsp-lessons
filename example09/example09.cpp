@@ -32,7 +32,7 @@ public:
 
 	void sendOutput(double value) {
 		for(std::list<ListenerDelegate>::iterator iter = m_DelegateList.begin();  iter != m_DelegateList.end(); ++iter) {
-		    (*iter).operator()(value);
+			(*iter).operator()(value);
 		}
 	}
 
