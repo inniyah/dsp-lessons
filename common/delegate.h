@@ -16,10 +16,8 @@
 
 template<typename return_type, typename... params>
 class Delegate {
-
-	typedef return_type (*Type)(void* callee, params...);
-
 public:
+	typedef return_type (*Type)(void* callee, params...);
 
 	Delegate(void * callee, Type function) : fpCallee(callee) , fpCallbackFunction(function) { }
 	Delegate(const Delegate & d) : fpCallee(d.fpCallee) , fpCallbackFunction(d.fpCallbackFunction) { }
@@ -45,7 +43,6 @@ public:
 	}
 
 private:
-
 	void * fpCallee;
 	Type fpCallbackFunction;
 
