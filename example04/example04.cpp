@@ -8,7 +8,16 @@
 #include <cmath>
 #include <unistd.h>
 
-class PulseGenerator {
+struct IDataSource {
+	virtual double get() = 0;
+
+	IDataSource & operator>>(double & b) {
+		b = get();
+		return *this;
+	}
+};
+
+class PulseGenerator : public IDataSource {
 public:
 	PulseGenerator(int period, double amplitude = 1.0) :
 		m_Counter(0),
@@ -16,7 +25,7 @@ public:
 		m_Amplitude(amplitude)
 	{
 	}
-	double get() {
+	virtual double get() {
 		return ( ((m_Counter++) % m_Period) < (m_Period/2) ? m_Amplitude : 0.0 );
 	}
 
@@ -26,7 +35,7 @@ private:
 	double m_Amplitude;
 };
 
-class RampGenerator {
+class RampGenerator : public IDataSource {
 public:
 	RampGenerator(int period, double amplitude = 1.0) :
 		m_Counter(0),
@@ -34,7 +43,7 @@ public:
 		m_Amplitude(amplitude)
 	{
 	}
-	double get() {
+	virtual double get() {
 		return ( ((m_Counter++) % m_Period) * m_Amplitude / (m_Period-1) );
 	}
 
@@ -44,8 +53,7 @@ private:
 	double m_Amplitude;
 };
 
-template<typename T>
-class Filter {
+class Filter : public IDataSource {
 	/*
 	 * first order IIR filters to approximate a K sample moving average.
 	 * This function implements the equation:
@@ -59,7 +67,7 @@ class Filter {
 	 * See: http://dsp.stackexchange.com/questions/378/what-is-the-best-first-order-iir-approximation-to-a-moving-average-filter
 	 */
 public:
-	Filter(T & generator, double alpha = 0.5) :
+	Filter(IDataSource & generator, double alpha = 0.5) :
 		m_Generator(generator),
 		m_Alpha(alpha),
 		m_Output(0.0)
@@ -72,7 +80,7 @@ public:
 	}
 
 private:
-	T & m_Generator;
+	IDataSource & m_Generator;
 	double m_Alpha;
 	double m_Output;
 };
@@ -88,18 +96,18 @@ public:
 	virtual void update(void);
 
 private:
-	PulseGenerator         pgen;
-	Filter<PulseGenerator> pflt;
-	RampGenerator          rgen;
-	Filter<RampGenerator>  rflt;
+	PulseGenerator pgen;
+	Filter         pflt;
+	RampGenerator  rgen;
+	Filter         rflt;
 };
 
 void App::init(void){
 }
 
 void App::update(void) {
-	Values[0] = pflt.get();
-	Values[1] = rflt.get();
+	pflt >> Values[0];
+	rflt >> Values[1];
 }
 
 // Main application object

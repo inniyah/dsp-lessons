@@ -1,5 +1,4 @@
 #include "OGLGraph.hpp"
-#include "delegate.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -8,8 +7,6 @@
 #include <cassert>
 #include <cmath>
 #include <unistd.h>
-
-typedef Delegate<double> GeneratorDelegate;
 
 class PulseGenerator {
 public:
@@ -47,6 +44,7 @@ private:
 	double m_Amplitude;
 };
 
+template<typename T>
 class Filter {
 	/*
 	 * first order IIR filters to approximate a K sample moving average.
@@ -61,20 +59,20 @@ class Filter {
 	 * See: http://dsp.stackexchange.com/questions/378/what-is-the-best-first-order-iir-approximation-to-a-moving-average-filter
 	 */
 public:
-	Filter(GeneratorDelegate generator, double alpha = 0.5) :
-		m_GeneratorDelegate(generator),
+	Filter(T & generator, double alpha = 0.5) :
+		m_Generator(generator),
 		m_Alpha(alpha),
 		m_Output(0.0)
 	{
 	}
 	virtual double get() {
-		double input = m_GeneratorDelegate();
+		double input = m_Generator.get();
 		m_Output = m_Alpha * input + (1.0 - m_Alpha) * m_Output;
 		return m_Output;
 	}
 
 private:
-	GeneratorDelegate m_GeneratorDelegate;
+	T & m_Generator;
 	double m_Alpha;
 	double m_Output;
 };
@@ -83,22 +81,17 @@ private:
 
 class App : public IApp<2> {
 public:
-	App() :
-		pgen(16),
-		pflt(GeneratorDelegate::fromObjectMethod<PulseGenerator, &PulseGenerator::get>(&pgen)),
-		rgen(16),
-		rflt(GeneratorDelegate::fromObjectMethod<RampGenerator, &RampGenerator::get>(&rgen))
-	{
+	App() : pgen(16), pflt(pgen), rgen(16), rflt(rgen) {
 	}
 
 	virtual void init(void);
 	virtual void update(void);
 
 private:
-	PulseGenerator pgen;
-	Filter         pflt;
-	RampGenerator  rgen;
-	Filter         rflt;
+	PulseGenerator         pgen;
+	Filter<PulseGenerator> pflt;
+	RampGenerator          rgen;
+	Filter<RampGenerator>  rflt;
 };
 
 void App::init(void){

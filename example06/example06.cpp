@@ -1,4 +1,5 @@
 #include "OGLGraph.hpp"
+#include "delegate.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -8,16 +9,9 @@
 #include <cmath>
 #include <unistd.h>
 
-struct IDataSource {
-	virtual double get() = 0;
+typedef Delegate<double> GeneratorDelegate;
 
-	IDataSource & operator>>(double & b) {
-		b = get();
-		return *this;
-	}
-};
-
-class PulseGenerator : public IDataSource {
+class PulseGenerator {
 public:
 	PulseGenerator(int period, double amplitude = 1.0) :
 		m_Counter(0),
@@ -25,7 +19,7 @@ public:
 		m_Amplitude(amplitude)
 	{
 	}
-	virtual double get() {
+	double get() {
 		return ( ((m_Counter++) % m_Period) < (m_Period/2) ? m_Amplitude : 0.0 );
 	}
 
@@ -35,7 +29,7 @@ private:
 	double m_Amplitude;
 };
 
-class RampGenerator : public IDataSource {
+class RampGenerator {
 public:
 	RampGenerator(int period, double amplitude = 1.0) :
 		m_Counter(0),
@@ -43,7 +37,7 @@ public:
 		m_Amplitude(amplitude)
 	{
 	}
-	virtual double get() {
+	double get() {
 		return ( ((m_Counter++) % m_Period) * m_Amplitude / (m_Period-1) );
 	}
 
@@ -53,7 +47,7 @@ private:
 	double m_Amplitude;
 };
 
-class Filter : public IDataSource {
+class Filter {
 	/*
 	 * first order IIR filters to approximate a K sample moving average.
 	 * This function implements the equation:
@@ -67,20 +61,20 @@ class Filter : public IDataSource {
 	 * See: http://dsp.stackexchange.com/questions/378/what-is-the-best-first-order-iir-approximation-to-a-moving-average-filter
 	 */
 public:
-	Filter(IDataSource & generator, double alpha = 0.5) :
-		m_Generator(generator),
+	Filter(GeneratorDelegate generator, double alpha = 0.5) :
+		m_GeneratorDelegate(generator),
 		m_Alpha(alpha),
 		m_Output(0.0)
 	{
 	}
 	virtual double get() {
-		double input = m_Generator.get();
+		double input = m_GeneratorDelegate();
 		m_Output = m_Alpha * input + (1.0 - m_Alpha) * m_Output;
 		return m_Output;
 	}
 
 private:
-	IDataSource & m_Generator;
+	GeneratorDelegate m_GeneratorDelegate;
 	double m_Alpha;
 	double m_Output;
 };
@@ -89,7 +83,12 @@ private:
 
 class App : public IApp<2> {
 public:
-	App() : pgen(16), pflt(pgen), rgen(16), rflt(rgen) {
+	App() :
+		pgen(16),
+		pflt(GeneratorDelegate::fromObjectMethod<PulseGenerator, &PulseGenerator::get>(&pgen)),
+		rgen(16),
+		rflt(GeneratorDelegate::fromObjectMethod<RampGenerator, &RampGenerator::get>(&rgen))
+	{
 	}
 
 	virtual void init(void);
@@ -106,8 +105,8 @@ void App::init(void){
 }
 
 void App::update(void) {
-	pflt >> Values[0];
-	rflt >> Values[1];
+	Values[0] = pflt.get();
+	Values[1] = rflt.get();
 }
 
 // Main application object
