@@ -39,9 +39,9 @@ SOURCES = \
 SHARED_OBJS = $(addprefix $(SHARED_OBJS_DIR)/,$(addsuffix .o,$(basename $(notdir $(SOURCES)))))
 STATIC_OBJS = $(addprefix $(STATIC_OBJS_DIR)/,$(addsuffix .o,$(basename $(notdir $(SOURCES)))))
 
-CFLAGS=-O2 -g -Wall 
-STATIC_CFLAGS= -O2 -g -Wall $(CFLAGS)
-SHARED_CFLAGS= $(STATIC_CFLAGS) -fPIC
+CFLAGS=-O2 -g -Wall -Wno-unused-function -Wno-unused-but-set-variable
+STATIC_CFLAGS= $(CFLAGS)
+SHARED_CFLAGS= $(CFLAGS) -fPIC
 
 LDFLAGS= -Wl,-z,defs -Wl,--as-needed -Wl,--no-undefined
 LIBS=
