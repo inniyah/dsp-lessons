@@ -4,16 +4,16 @@ all: $(PROGRAM)
 
 OBJS = $(PROGRAM).o
 
-PKG_CONFIG=gl glu
+PKG_CONFIG=
 PKG_CONFIG_CFLAGS=`pkg-config --cflags $(PKG_CONFIG) 2>/dev/null`
 PKG_CONFIG_LIBS=`pkg-config --libs $(PKG_CONFIG) 2>/dev/null`
 
-CFLAGS= -O2 -g -Wall -std=c++11
+CFLAGS= -O2 -g -Wall -D_FORTIFY_SOURCE=2 -std=c++11
 DEFS= 
 INCS= -I. -I../common
 
-LDFLAGS= -Wl,-z,defs -Wl,--as-needed -Wl,--no-undefined
-LIBS= -L. -lglut -lm -lpthread
+LDFLAGS= -Wl,-z,defs -Wl,-z,relro -Wl,--as-needed -Wl,--no-undefined
+LIBS= -L.
 
 $(PROGRAM): $(OBJS)
 	g++ $(LDFLAGS) $+ -o $@ $(LIBS) $(PKG_CONFIG_LIBS)
