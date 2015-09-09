@@ -1,0 +1,11 @@
+*~
+*.o
+*.a
+*.so
+*.so.*
+*.tab.h
+*.tab.c
+*.yy.c
+*.dbc.h
+obj/*
+tmp/*
