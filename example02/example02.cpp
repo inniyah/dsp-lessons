@@ -1,3 +1,12 @@
+/*
+ * In this example we have introduced an intermediate element between the
+ * signal generator and the consumer, which will be a filter. When the consumer
+ * wants to get a new value, it asks it to the filter wich, in turn, obtains it
+ * from the generator and runs a high-pass filter on it, before returning it.
+ * Please acknowledge that the filter code depends on the generator being a
+ * pulse generator, so it can't easily be reused without modifying the code.
+ */
+
 #include "OGLGraph.hpp"
 
 #include <cstdint>

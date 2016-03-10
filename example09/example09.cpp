@@ -1,3 +1,11 @@
+/*
+ * In this example we improve the framework defined in the previous one, where
+ * data were pushed upwards from the data sources instead of being pulled from the
+ * data drains. In this case, the data sources can push data to more than one
+ * data receiver. Please acknowledge that the current implementation in this script
+ * will not support feedback loops.
+ */
+
 #include "OGLGraph.hpp"
 #include "delegate.h"
 #include "linked_list.h"

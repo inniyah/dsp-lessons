@@ -1,4 +1,10 @@
-#include "OGLGraph.hpp"
+/*
+ * This is a very simple example of a signal generator, in this case a pulse
+ * generator. In this case we have replaced the main application with a
+ * graphical frontend that will be visually showing the data obtained from
+ * the generator. This main application essentially consists in yet another
+ * continuous loop that gets a value, shows it and sleeps for a bit.
+ */
 
 #include <cstdint>
 #include <cstdlib>

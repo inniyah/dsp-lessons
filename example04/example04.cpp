@@ -1,3 +1,11 @@
+/*
+ * This example is analogous to the previous one, we're defining an interface with
+ * a pure virtual function that needs to be implemented (get), and we're using that
+ * again to make the filter independent of the type of generator. In this case, we're
+ * also implementing operator>> in the interface, so that the data can be obtained with
+ * that operator (>>), which is more visual in the code. Apart of that, nothing new.
+ */
+
 #include "OGLGraph.hpp"
 
 #include <cstdint>

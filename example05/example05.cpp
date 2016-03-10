@@ -1,3 +1,14 @@
+/*
+ * In this example we're providing a totally different way to deal with the problem
+ * of decoupling the filter from the type of generator. For this, we will be using
+ * templates in the definition of the filter. This means that, when the program is
+ * compiled, a different filter will exist for every kind og generator that is being
+ * used, and that means that there will be more code. It also means that when the filters
+ * are compiled, the generators' code has to be accessible. On the good part, the generated
+ * code is as quick and fast as in our first examples, without any extra operations to call
+ * the get function.
+ */
+
 #include "OGLGraph.hpp"
 
 #include <cstdint>

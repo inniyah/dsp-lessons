@@ -1,3 +1,10 @@
+/*
+ * This example is intended to clarify the way example06 works. That example uses
+ * delegates, which can be confusing for people coming from the C world who are not
+ * used to object patterns. In this case, the same paradigm is used, but explicitly
+ * with callback functions so that the low level operations can be seen more clarly.
+ */
+
 #include "OGLGraph.hpp"
 
 #include <cstdint>

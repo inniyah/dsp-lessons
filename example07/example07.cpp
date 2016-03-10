@@ -1,3 +1,11 @@
+/*
+ * In this example, we're using a templated filter that can be used to implement any binary
+ * operation. In this case, we're implementing something called Composition which will have
+ * different versions when compiled against different functions, which it will use to
+ * implement binary operations (like add). As our main framework, we're using the
+ * interface-based approach we have already explained.
+ */
+
 #include "OGLGraph.hpp"
 
 #include <cstdint>

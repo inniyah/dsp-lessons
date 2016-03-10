@@ -1,3 +1,13 @@
+/*
+ * In the previous examples, we have always had a signal dump that extracted the data
+ * from something (a data generator or a filter), which in turn recursively got the data
+ * from whatever sources it depends on. We're changing that paradigm in this script: it
+ * will be the sources who push the data (with a function called go), which will propagate
+ * throughout the next layers until they reach a dump. Notice that, in this example, a data
+ * source will just be able to send data to one data receiver. It won't support two filters
+ * getting the data from the same data source, for example.
+ */
+
 #include "OGLGraph.hpp"
 #include "delegate.h"
 

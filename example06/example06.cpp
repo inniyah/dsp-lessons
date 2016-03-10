@@ -1,3 +1,14 @@
+/*
+ * In this example we're introducing yet another way to make the filter independent
+ * of the generator: by using delegates. A delegate is nothing more than an evolved
+ * callback function, encapsulated in an object. The best improvement over the
+ * interfaces is that any function can be used to provide the data, not just the one
+ * implementing the interface, that a generator could even export different data
+ * providers at the same time (more than one "get" function) and that we're not
+ * forcing generators to inherit any particular arbitrary class with a vrtual function
+ * that they have to implement.
+ */
+
 #include "OGLGraph.hpp"
 #include "delegate.h"
 

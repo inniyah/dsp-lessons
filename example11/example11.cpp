@@ -1,3 +1,10 @@
+/*
+ * This example shows how to implement a state machine. In many situations, we will
+ * find that an element of the signal process is better implemented as a component
+ * that behaves differently depending on which state it is in, and can change from
+ * state to state depending on some certain conditions.
+ */
+
 #include "OGLGraph.hpp"
 #include "delegate.h"
 #include "flags.h"

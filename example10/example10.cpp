@@ -1,3 +1,14 @@
+/*
+ * In this example the concept of a central synchronization clock is introduced.
+ * Up to now, the behavior of each component was based in events, and their
+ * response was triggered by the calling of a push data or a pull data function. This
+ * prevented us from creating feedback loops, in which the output of a component
+ * would be feeding, directly or indirectly, its own inputs. In this case, we have
+ * a pulse generator as the data source, then the data goes through some process, that
+ * is currently implemented by a filter, but we're using the process output as a negative
+ * feedback to the input, as would be the case in a regulator.
+ */
+
 #include "OGLGraph.hpp"
 #include "delegate.h"
 #include "flags.h"

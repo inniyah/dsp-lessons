@@ -1,3 +1,16 @@
+/*
+ * The first proposal to achieve a filter that's independent of the type of generator
+ * that we're using is by using pure virtual classes with virtual functions to provide
+ * something equivalent to interfaces. In this case we're defining an interface IDataSource
+ * with a function get that all the data sources will inherit. The filter, then, will only
+ * have to depend on the generator implementing that interface. Please acknowledge that, in
+ * the case of C++, this will cause that all generators will have a reference to an vtable and
+ * also that whoever calls get will have to resolve two pointer indirections to do so (obtain the
+ * vtable from the object, and obtain the function from the vtable).
+ * In this example we're implementing two different generators: the pulse generator that we already
+ * had an a ramp generator.
+ */
+
 #include "OGLGraph.hpp"
 
 #include <cstdint>

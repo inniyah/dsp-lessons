@@ -1,3 +1,10 @@
+/*
+ * This is a very simple example of a signal generator, in this case a pulse
+ * generator. The main application consists in a non-stop loop that gets a value
+ * from the generator, prints it on the screen, and waits for a bit until getting\
+ * a new value.
+ */
+
 #include <cstdint>
 #include <cstdlib>
 #include <cstdio>
